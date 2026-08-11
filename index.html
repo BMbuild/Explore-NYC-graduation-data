@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SchoolLens</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page-shell">
+    <header class="page-header">
+      <div>
+        <p class="tagline">SchoolLens</p>
+        <h1>Explore NYC graduation data</h1>
+        <p class="subtitle">Explore NYC graduation data to identify potential performance gaps.</p>
+      </div>
+    </header>
+
+    <section class="filters-section">
+      <div class="filter-card">
+        <label for="borough-select">Borough</label>
+        <select id="borough-select"></select>
+      </div>
+      <div class="filter-card">
+        <label for="year-select">Cohort Year</label>
+        <select id="year-select"></select>
+      </div>
+      <div class="filter-card">
+        <label for="cohort-select">Cohort Type</label>
+        <select id="cohort-select"></select>
+      </div>
+    </section>
+
+    <section class="chart-section">
+      <div class="section-heading">
+        <h2>Graduation-rate chart</h2>
+        <p>Visualizing how graduation rates change across boroughs and cohort years.</p>
+      </div>
+      <div class="chart-card">
+        <svg id="trend-chart" viewBox="0 0 920 420" aria-label="Graduation rate trend chart"></svg>
+      </div>
+    </section>
+
+    <section class="insights-section">
+      <h2>What the data suggests</h2>
+      <p id="insight-copy">Loading data to surface the strongest evidence-based finding.</p>
+    </section>
+
+    <section class="feedback-section">
+      <div class="section-heading">
+        <h2>Share your feedback</h2>
+        <p>Tell us how useful the results were and how your SchoolLens experience felt.</p>
+      </div>
+      <form id="feedback-form" class="feedback-card" novalidate>
+        <div class="feedback-question">
+          <span class="question-title">How useful was this result?</span>
+          <div class="feedback-options">
+            <label><input type="radio" name="useful-rating" value="1" /><span>1 😞</span></label>
+            <label><input type="radio" name="useful-rating" value="2" /><span>2 🙁</span></label>
+            <label><input type="radio" name="useful-rating" value="3" /><span>3 😐</span></label>
+            <label><input type="radio" name="useful-rating" value="4" /><span>4 🙂</span></label>
+            <label><input type="radio" name="useful-rating" value="5" /><span>5 😊</span></label>
+          </div>
+        </div>
+        <div class="feedback-question">
+          <span class="question-title">How was your experience with SchoolLens?</span>
+          <div class="feedback-options">
+            <label><input type="radio" name="experience-rating" value="1" /><span>1 😞</span></label>
+            <label><input type="radio" name="experience-rating" value="2" /><span>2 🙁</span></label>
+            <label><input type="radio" name="experience-rating" value="3" /><span>3 😐</span></label>
+            <label><input type="radio" name="experience-rating" value="4" /><span>4 🙂</span></label>
+            <label><input type="radio" name="experience-rating" value="5" /><span>5 😊</span></label>
+          </div>
+        </div>
+        <div class="feedback-question">
+          <label for="feedback-comments">What did you like or what could be improved?</label>
+          <textarea id="feedback-comments" rows="6" placeholder="Optional comment (max 300 words)" aria-describedby="feedback-word-count"></textarea>
+          <div class="word-counter"><span id="feedback-word-count">0</span> / 300 words</div>
+        </div>
+        <button type="submit" class="btn-primary">Submit Feedback</button>
+        <p id="feedback-message" class="feedback-message" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

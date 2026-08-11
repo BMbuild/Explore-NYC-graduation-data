@@ -1,0 +1,404 @@
+{
+  "entries": [
+    {
+      "borough": "Bronx",
+      "year": 2012,
+      "cohort": "4 year June",
+      "graduationRate": 62.01,
+      "cohortSize": 13838,
+      "graduates": 8581,
+      "dropoutRate": 12.697,
+      "stillEnrolledRate": 23.688
+    },
+    {
+      "borough": "Bronx",
+      "year": 2013,
+      "cohort": "4 year June",
+      "graduationRate": 62.913,
+      "cohortSize": 13730,
+      "graduates": 8638,
+      "dropoutRate": 11.697,
+      "stillEnrolledRate": 23.292
+    },
+    {
+      "borough": "Bronx",
+      "year": 2014,
+      "cohort": "4 year June",
+      "graduationRate": 63.537,
+      "cohortSize": 13951,
+      "graduates": 8864,
+      "dropoutRate": 12.135,
+      "stillEnrolledRate": 22.658
+    },
+    {
+      "borough": "Bronx",
+      "year": 2015,
+      "cohort": "4 year June",
+      "graduationRate": 66.252,
+      "cohortSize": 13891,
+      "graduates": 9203,
+      "dropoutRate": 12.785,
+      "stillEnrolledRate": 19.113
+    },
+    {
+      "borough": "Bronx",
+      "year": 2016,
+      "cohort": "4 year June",
+      "graduationRate": 72.245,
+      "cohortSize": 13421,
+      "graduates": 9696,
+      "dropoutRate": 9.575,
+      "stillEnrolledRate": 16.422
+    },
+    {
+      "borough": "Bronx",
+      "year": 2017,
+      "cohort": "4 year June",
+      "graduationRate": 75.03,
+      "cohortSize": 13152,
+      "graduates": 9868,
+      "dropoutRate": 7.641,
+      "stillEnrolledRate": 16.028
+    },
+    {
+      "borough": "Bronx",
+      "year": 2018,
+      "cohort": "4 year June",
+      "graduationRate": 77.681,
+      "cohortSize": 12487,
+      "graduates": 9700,
+      "dropoutRate": 7.832,
+      "stillEnrolledRate": 12.949
+    },
+    {
+      "borough": "Bronx",
+      "year": 2019,
+      "cohort": "4 year June",
+      "graduationRate": 77.146,
+      "cohortSize": 12256,
+      "graduates": 9455,
+      "dropoutRate": 7.931,
+      "stillEnrolledRate": 13.414
+    },
+    {
+      "borough": "Brooklyn",
+      "year": 2012,
+      "cohort": "4 year June",
+      "graduationRate": 69.183,
+      "cohortSize": 20823,
+      "graduates": 14406,
+      "dropoutRate": 7.602,
+      "stillEnrolledRate": 21.755
+    },
+    {
+      "borough": "Brooklyn",
+      "year": 2013,
+      "cohort": "4 year June",
+      "graduationRate": 70.681,
+      "cohortSize": 20096,
+      "graduates": 14204,
+      "dropoutRate": 7.449,
+      "stillEnrolledRate": 20.517
+    },
+    {
+      "borough": "Brooklyn",
+      "year": 2014,
+      "cohort": "4 year June",
+      "graduationRate": 72.96,
+      "cohortSize": 20566,
+      "graduates": 15005,
+      "dropoutRate": 6.7,
+      "stillEnrolledRate": 19.09
+    },
+    {
+      "borough": "Brooklyn",
+      "year": 2015,
+      "cohort": "4 year June",
+      "graduationRate": 73.059,
+      "cohortSize": 20385,
+      "graduates": 14893,
+      "dropoutRate": 7.201,
+      "stillEnrolledRate": 18.474
+    },
+    {
+      "borough": "Brooklyn",
+      "year": 2016,
+      "cohort": "4 year June",
+      "graduationRate": 77.047,
+      "cohortSize": 20307,
+      "graduates": 15646,
+      "dropoutRate": 5.451,
+      "stillEnrolledRate": 16.275
+    },
+    {
+      "borough": "Brooklyn",
+      "year": 2017,
+      "cohort": "4 year June",
+      "graduationRate": 78.422,
+      "cohortSize": 20136,
+      "graduates": 15791,
+      "dropoutRate": 4.087,
+      "stillEnrolledRate": 16.413
+    },
+    {
+      "borough": "Brooklyn",
+      "year": 2018,
+      "cohort": "4 year June",
+      "graduationRate": 80.21,
+      "cohortSize": 19874,
+      "graduates": 15941,
+      "dropoutRate": 5.137,
+      "stillEnrolledRate": 13.409
+    },
+    {
+      "borough": "Brooklyn",
+      "year": 2019,
+      "cohort": "4 year June",
+      "graduationRate": 79.758,
+      "cohortSize": 19682,
+      "graduates": 15698,
+      "dropoutRate": 5.243,
+      "stillEnrolledRate": 13.871
+    },
+    {
+      "borough": "Manhattan",
+      "year": 2012,
+      "cohort": "4 year June",
+      "graduationRate": 71.912,
+      "cohortSize": 15569,
+      "graduates": 11196,
+      "dropoutRate": 7.361,
+      "stillEnrolledRate": 19.372
+    },
+    {
+      "borough": "Manhattan",
+      "year": 2013,
+      "cohort": "4 year June",
+      "graduationRate": 71.963,
+      "cohortSize": 15280,
+      "graduates": 10996,
+      "dropoutRate": 7.31,
+      "stillEnrolledRate": 19.548
+    },
+    {
+      "borough": "Manhattan",
+      "year": 2014,
+      "cohort": "4 year June",
+      "graduationRate": 73.739,
+      "cohortSize": 15521,
+      "graduates": 11445,
+      "dropoutRate": 6.984,
+      "stillEnrolledRate": 18.014
+    },
+    {
+      "borough": "Manhattan",
+      "year": 2015,
+      "cohort": "4 year June",
+      "graduationRate": 75.318,
+      "cohortSize": 15274,
+      "graduates": 11504,
+      "dropoutRate": 7.11,
+      "stillEnrolledRate": 16.486
+    },
+    {
+      "borough": "Manhattan",
+      "year": 2016,
+      "cohort": "4 year June",
+      "graduationRate": 78.503,
+      "cohortSize": 15593,
+      "graduates": 12241,
+      "dropoutRate": 5.002,
+      "stillEnrolledRate": 15.084
+    },
+    {
+      "borough": "Manhattan",
+      "year": 2017,
+      "cohort": "4 year June",
+      "graduationRate": 81.24,
+      "cohortSize": 15192,
+      "graduates": 12342,
+      "dropoutRate": 4.726,
+      "stillEnrolledRate": 12.934
+    },
+    {
+      "borough": "Manhattan",
+      "year": 2018,
+      "cohort": "4 year June",
+      "graduationRate": 81.272,
+      "cohortSize": 14935,
+      "graduates": 12138,
+      "dropoutRate": 5.899,
+      "stillEnrolledRate": 11.778
+    },
+    {
+      "borough": "Manhattan",
+      "year": 2019,
+      "cohort": "4 year June",
+      "graduationRate": 81.091,
+      "cohortSize": 14660,
+      "graduates": 11888,
+      "dropoutRate": 6.01,
+      "stillEnrolledRate": 11.842
+    },
+    {
+      "borough": "Queens",
+      "year": 2012,
+      "cohort": "4 year June",
+      "graduationRate": 73.203,
+      "cohortSize": 19398,
+      "graduates": 14200,
+      "dropoutRate": 7.712,
+      "stillEnrolledRate": 17.332
+    },
+    {
+      "borough": "Queens",
+      "year": 2013,
+      "cohort": "4 year June",
+      "graduationRate": 74.847,
+      "cohortSize": 19417,
+      "graduates": 14533,
+      "dropoutRate": 6.376,
+      "stillEnrolledRate": 17.335
+    },
+    {
+      "borough": "Queens",
+      "year": 2014,
+      "cohort": "4 year June",
+      "graduationRate": 76.419,
+      "cohortSize": 20245,
+      "graduates": 15471,
+      "dropoutRate": 5.947,
+      "stillEnrolledRate": 16.419
+    },
+    {
+      "borough": "Queens",
+      "year": 2015,
+      "cohort": "4 year June",
+      "graduationRate": 77.315,
+      "cohortSize": 19788,
+      "graduates": 15299,
+      "dropoutRate": 6.246,
+      "stillEnrolledRate": 15.216
+    },
+    {
+      "borough": "Queens",
+      "year": 2016,
+      "cohort": "4 year June",
+      "graduationRate": 80.905,
+      "cohortSize": 19550,
+      "graduates": 15817,
+      "dropoutRate": 5.192,
+      "stillEnrolledRate": 12.215
+    },
+    {
+      "borough": "Queens",
+      "year": 2017,
+      "cohort": "4 year June",
+      "graduationRate": 82.796,
+      "cohortSize": 19501,
+      "graduates": 16146,
+      "dropoutRate": 4.343,
+      "stillEnrolledRate": 11.635
+    },
+    {
+      "borough": "Queens",
+      "year": 2018,
+      "cohort": "4 year June",
+      "graduationRate": 84.35,
+      "cohortSize": 19048,
+      "graduates": 16067,
+      "dropoutRate": 4.111,
+      "stillEnrolledRate": 10.332
+    },
+    {
+      "borough": "Queens",
+      "year": 2019,
+      "cohort": "4 year June",
+      "graduationRate": 84.048,
+      "cohortSize": 18712,
+      "graduates": 15727,
+      "dropoutRate": 3.869,
+      "stillEnrolledRate": 10.881
+    },
+    {
+      "borough": "Staten Island",
+      "year": 2012,
+      "cohort": "4 year June",
+      "graduationRate": 77.619,
+      "cohortSize": 4544,
+      "graduates": 3527,
+      "dropoutRate": 6.36,
+      "stillEnrolledRate": 14.481
+    },
+    {
+      "borough": "Staten Island",
+      "year": 2013,
+      "cohort": "4 year June",
+      "graduationRate": 78.752,
+      "cohortSize": 4631,
+      "graduates": 3647,
+      "dropoutRate": 5.96,
+      "stillEnrolledRate": 13.129
+    },
+    {
+      "borough": "Staten Island",
+      "year": 2014,
+      "cohort": "4 year June",
+      "graduationRate": 78.993,
+      "cohortSize": 4665,
+      "graduates": 3685,
+      "dropoutRate": 5.466,
+      "stillEnrolledRate": 13.676
+    },
+    {
+      "borough": "Staten Island",
+      "year": 2015,
+      "cohort": "4 year June",
+      "graduationRate": 81.055,
+      "cohortSize": 4434,
+      "graduates": 3594,
+      "dropoutRate": 5.052,
+      "stillEnrolledRate": 11.818
+    },
+    {
+      "borough": "Staten Island",
+      "year": 2016,
+      "cohort": "4 year June",
+      "graduationRate": 83.553,
+      "cohortSize": 4694,
+      "graduates": 3922,
+      "dropoutRate": 3.856,
+      "stillEnrolledRate": 10.396
+    },
+    {
+      "borough": "Staten Island",
+      "year": 2017,
+      "cohort": "4 year June",
+      "graduationRate": 83.618,
+      "cohortSize": 4682,
+      "graduates": 3915,
+      "dropoutRate": 3.674,
+      "stillEnrolledRate": 11.747
+    },
+    {
+      "borough": "Staten Island",
+      "year": 2018,
+      "cohort": "4 year June",
+      "graduationRate": 85.048,
+      "cohortSize": 4568,
+      "graduates": 3885,
+      "dropoutRate": 4.225,
+      "stillEnrolledRate": 9.129
+    },
+    {
+      "borough": "Staten Island",
+      "year": 2019,
+      "cohort": "4 year June",
+      "graduationRate": 85.097,
+      "cohortSize": 4583,
+      "graduates": 3900,
+      "dropoutRate": 4.102,
+      "stillEnrolledRate": 8.815
+    }
+  ]
+}
