@@ -83,6 +83,14 @@ function drawTrend(rows) {
     markup += `<polyline points="${points}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
     sorted.forEach(point => markup += `<circle cx="${x(point.year)}" cy="${y(point.graduationRate)}" r="4.5" fill="${color}" stroke="#fff" stroke-width="2"><title>${borough}, ${point.year}: ${point.graduationRate.toFixed(1)}%</title></circle>`);
   });
+  const selectedYear = yearSelect.value;
+  if (selectedYear !== 'all') {
+    rows.filter(row => String(row.year) === selectedYear).forEach(point => {
+      const color = boroughColors[point.borough];
+      markup += `<circle cx="${x(point.year)}" cy="${y(point.graduationRate)}" r="8" fill="#fff" stroke="${color}" stroke-width="4"><title>Selected: ${point.borough}, ${point.year}: ${point.graduationRate.toFixed(1)}%</title></circle>`;
+      markup += `<text x="${x(point.year)}" y="${y(point.graduationRate) - 15}" text-anchor="middle" font-size="12" font-weight="700" fill="${color}">${point.graduationRate.toFixed(1)}%</text>`;
+    });
+  }
   markup += '<text x="58" y="22" font-size="14" font-weight="700" fill="#0f172a">Four-year June graduation rate</text>';
   chartSvg.innerHTML = markup;
 }
@@ -135,7 +143,12 @@ function initMap() {
 function refreshView() {
   const boroughRows = filterRows(boroughData);
   insightCopy.textContent = summarizeInsight(boroughRows);
-  drawTrend(filterRows(boroughData.filter(row => cohortSelect.value === 'all' || row.cohort === cohortSelect.value)));
+  const { borough, cohort } = filters();
+  const trendRows = boroughData.filter(row =>
+    (borough === 'all' || row.borough === borough) &&
+    (cohort === 'all' || row.cohort === cohort)
+  );
+  drawTrend(trendRows);
   drawSchoolChart(filterRows(schoolData, false));
   updateMap(boroughRows);
 }
