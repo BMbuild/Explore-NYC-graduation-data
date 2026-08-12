@@ -19,9 +19,6 @@ const boroughColors = {
 };
 let boroughData = [];
 let schoolData = [];
-let boroughMap;
-let boroughMapLayer;
-const boroughGeoJsonUrl = 'https://data.cityofnewyork.us/api/v3/views/gthc-hcne/query.geojson?$limit=10';
 
 function buildOptions(items, select, label) {
   select.innerHTML = `<option value="all">All ${label}</option>`;
@@ -110,34 +107,33 @@ function drawSchoolChart(rows) {
 }
 
 function updateMap(rows) {
-  if (!boroughMapLayer) return;
+  if (!mapElement.querySelector('svg')) return;
   const rates = Object.fromEntries(rows.map(row => [row.borough, row.graduationRate]));
   const activeBorough = boroughSelect.value;
-  boroughMapLayer.eachLayer(layer => {
-    const borough = layer.feature.properties.boroname;
+  mapElement.querySelectorAll('[data-borough]').forEach(area => {
+    const borough = area.dataset.borough;
     const rate = rates[borough];
     const isActive = activeBorough === 'all' || borough === activeBorough;
-    layer.setStyle({ fillColor: boroughColors[borough] || '#94a3b8', fillOpacity: rate !== undefined && isActive ? .72 : .14, color: isActive ? '#ffffff' : '#cbd5e1', weight: isActive ? 2 : 1 });
-    layer.unbindTooltip();
-    layer.bindTooltip(`<strong>${borough}</strong><br>${rate === undefined ? 'No matching data' : `${rate.toFixed(1)}% graduation rate`}`, { sticky: true });
+    area.style.fill = boroughColors[borough];
+    area.style.opacity = rate !== undefined && isActive ? '.86' : '.22';
+    area.setAttribute('aria-label', `${borough}: ${rate === undefined ? 'No matching data' : `${rate.toFixed(1)}% graduation rate`}`);
+    area.querySelector('title').textContent = `${borough}: ${rate === undefined ? 'No matching data' : `${rate.toFixed(1)}% graduation rate`}`;
   });
 }
 
 function initMap() {
-  if (!window.L || !mapElement) return;
-  boroughMap = L.map(mapElement, { scrollWheelZoom: false, zoomControl: true }).setView([40.70, -73.94], 10);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(boroughMap);
-  fetch(boroughGeoJsonUrl)
-    .then(response => response.json())
-    .then(geoJson => {
-      boroughMapLayer = L.geoJSON(geoJson, {
-        style: { color: '#ffffff', weight: 2, fillOpacity: .7 },
-        onEachFeature: (feature, layer) => layer.on({ click: () => { boroughSelect.value = feature.properties.boroname; refreshView(); } }),
-      }).addTo(boroughMap);
-      boroughMap.fitBounds(boroughMapLayer.getBounds(), { padding: [18, 18] });
-      updateMap(filterRows(boroughData));
-    })
-    .catch(() => { mapElement.innerHTML = '<p class="empty-state">The map could not load. Please check your internet connection and try again.</p>'; });
+  if (!mapElement) return;
+  mapElement.innerHTML = `<svg class="borough-svg" viewBox="0 0 900 540" role="img" aria-label="Map of New York City boroughs">
+    <path class="map-water" d="M0 0H900V540H0Z"/>
+    <path data-borough="Bronx" tabindex="0" d="M466 48 L576 28 L705 84 L682 187 L603 212 L533 189 L472 145 Z"><title>Bronx</title></path>
+    <path data-borough="Manhattan" tabindex="0" d="M419 87 L464 116 L470 168 L447 223 L431 278 L411 336 L395 369 L375 350 L385 299 L394 254 L401 203 L402 145 Z"><title>Manhattan</title></path>
+    <path data-borough="Queens" tabindex="0" d="M565 205 L706 176 L850 259 L820 421 L695 462 L570 400 L536 321 Z"><title>Queens</title></path>
+    <path data-borough="Brooklyn" tabindex="0" d="M422 282 L531 260 L582 321 L570 400 L661 468 L579 511 L445 473 L369 407 Z"><title>Brooklyn</title></path>
+    <path data-borough="Staten Island" tabindex="0" d="M108 380 L227 345 L342 397 L319 490 L210 521 L102 470 Z"><title>Staten Island</title></path>
+    <g class="map-labels"><text x="572" y="120">BRONX</text><text x="420" y="218">MANHATTAN</text><text x="700" y="325">QUEENS</text><text x="487" y="394">BROOKLYN</text><text x="203" y="435">STATEN ISLAND</text></g>
+  </svg>`;
+  mapElement.querySelectorAll('[data-borough]').forEach(area => area.addEventListener('click', () => { boroughSelect.value = area.dataset.borough; refreshView(); }));
+  updateMap(filterRows(boroughData));
 }
 
 function refreshView() {
