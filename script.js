@@ -1,246 +1,130 @@
-const dataUrl = './data/borough-graduation-rates.json';
+const boroughDataUrl = './data/borough-graduation-rates.json';
+const schoolDataUrl = './data/school-graduation-rates.json';
 const boroughSelect = document.getElementById('borough-select');
 const yearSelect = document.getElementById('year-select');
 const cohortSelect = document.getElementById('cohort-select');
 const insightCopy = document.getElementById('insight-copy');
 const chartSvg = document.getElementById('trend-chart');
+const schoolChart = document.getElementById('school-chart');
+const schoolCount = document.getElementById('school-count');
+const schoolChartDescription = document.getElementById('school-chart-description');
 const feedbackForm = document.getElementById('feedback-form');
 const feedbackComments = document.getElementById('feedback-comments');
 const feedbackWordCount = document.getElementById('feedback-word-count');
 const feedbackMessage = document.getElementById('feedback-message');
-let allData = [];
+
+const boroughColors = {
+  Manhattan: '#2563eb', Bronx: '#e11d48', Brooklyn: '#7c3aed', Queens: '#059669', 'Staten Island': '#d97706',
+};
+let boroughData = [];
+let schoolData = [];
 
 function buildOptions(items, select, label) {
-  select.innerHTML = '';
-  const defaultOption = document.createElement('option');
-  defaultOption.value = 'all';
-  defaultOption.textContent = `All ${label}`;
-  select.appendChild(defaultOption);
-
-  items.forEach(item => {
-    const option = document.createElement('option');
-    option.value = item;
-    option.textContent = item;
-    select.appendChild(option);
-  });
+  select.innerHTML = `<option value="all">All ${label}</option>`;
+  items.forEach(item => select.add(new Option(item, item)));
 }
 
-function getFilters() {
-  return {
-    borough: boroughSelect.value,
-    year: yearSelect.value,
-    cohort: cohortSelect.value,
-  };
+function filters() {
+  return { borough: boroughSelect.value, year: yearSelect.value, cohort: cohortSelect.value };
 }
 
-function filterData() {
-  const { borough, year, cohort } = getFilters();
-  let filtered = allData;
-  if (borough !== 'all') filtered = filtered.filter(item => item.borough === borough);
-  if (year !== 'all') filtered = filtered.filter(item => String(item.year) === year);
-  if (cohort !== 'all') filtered = filtered.filter(item => item.cohort === cohort);
-  return filtered;
+function filterRows(rows, includeCohort = true) {
+  const { borough, year, cohort } = filters();
+  return rows.filter(row =>
+    (borough === 'all' || row.borough === borough) &&
+    (year === 'all' || String(row.year) === year) &&
+    (!includeCohort || cohort === 'all' || row.cohort === cohort)
+  );
 }
 
-function getChartData() {
-  const { borough, cohort } = getFilters();
-  let filtered = allData;
-  if (borough !== 'all') filtered = filtered.filter(item => item.borough === borough);
-  if (cohort !== 'all') filtered = filtered.filter(item => item.cohort === cohort);
-  return filtered;
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char]));
 }
 
-function summarizeInsight(filtered) {
-  if (!filtered.length) {
-    return 'No data matches the selected combination. Try a broader borough, year, or cohort selection.';
-  }
-
-  const latestYear = Math.max(...filtered.map(item => item.year));
-  const latest = filtered.filter(item => item.year === latestYear);
-  const sortedByGrad = [...latest].sort((a, b) => b.graduationRate - a.graduationRate);
-  const best = sortedByGrad[0];
-  const worst = sortedByGrad[sortedByGrad.length - 1];
-
-  if (boroughSelect.value !== 'all' && yearSelect.value !== 'all' && cohortSelect.value !== 'all') {
-    const entry = filtered[0];
-    return `In ${entry.borough} for ${entry.year} (${entry.cohort}), the graduation rate is ${entry.graduationRate.toFixed(1)}% while the dropout rate is ${entry.dropoutRate.toFixed(1)}%.`;
-  }
-
+function summarizeInsight(rows) {
+  if (!rows.length) return 'No borough data matches these filters. Try a broader selection.';
+  const latestYear = Math.max(...rows.map(row => row.year));
+  const latest = rows.filter(row => row.year === latestYear).sort((a, b) => b.graduationRate - a.graduationRate);
+  const best = latest[0];
+  const lowest = latest.at(-1);
   if (boroughSelect.value !== 'all') {
-    const boroughRows = filtered.sort((a, b) => a.year - b.year);
-    const delta = boroughRows[boroughRows.length - 1].graduationRate - boroughRows[0].graduationRate;
-    const direction = delta >= 0 ? 'increased' : 'decreased';
-    return `For ${boroughSelect.value}, the graduation rate has ${direction} ${Math.abs(delta).toFixed(1)} points over the available years in the selected data.`;
+    const ordered = [...rows].sort((a, b) => a.year - b.year);
+    const change = ordered.at(-1).graduationRate - ordered[0].graduationRate;
+    return `${boroughSelect.value}'s graduation rate ${change >= 0 ? 'increased' : 'decreased'} by ${Math.abs(change).toFixed(1)} percentage points across the selected years.`;
   }
-
-  if (yearSelect.value !== 'all') {
-    return `In ${yearSelect.value}, borough graduation rates range from ${worst.graduationRate.toFixed(1)}% (${worst.borough}) to ${best.graduationRate.toFixed(1)}% (${best.borough}).`;
-  }
-
-  return `Across the available data, the highest recent borough graduation rate is ${best.graduationRate.toFixed(1)}% (${best.borough}) and the lowest is ${worst.graduationRate.toFixed(1)}% (${worst.borough}), highlighting meaningful variation among boroughs.`;
+  return `In ${latestYear}, ${best.borough} had the highest borough graduation rate (${best.graduationRate.toFixed(1)}%), while ${lowest.borough} had the lowest (${lowest.graduationRate.toFixed(1)}%).`;
 }
 
-function drawChart(filtered) {
-  const width = 920;
-  const height = 420;
-  const margin = { top: 32, right: 28, bottom: 48, left: 60 };
+function groupBy(rows, key) {
+  return rows.reduce((groups, row) => ((groups[row[key]] ??= []).push(row), groups), {});
+}
+
+function drawTrend(rows) {
+  const width = 920, height = 420, margin = { top: 42, right: 28, bottom: 50, left: 58 };
   chartSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-  chartSvg.innerHTML = '';
-
-  if (!filtered.length) {
-    chartSvg.innerHTML = '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" fill="#475569">No data available for this selection.</text>';
-    return;
-  }
-
-  const years = Array.from(new Set(filtered.map(item => item.year))).sort((a, b) => a - b);
-  const series = groupBy(filtered, 'borough');
-  const gradValues = filtered.map(item => item.graduationRate);
-  const yMax = Math.min(100, Math.max(...gradValues) * 1.08);
-  const yMin = 0;
-
-  const xStep = years.length > 1 ? (width - margin.left - margin.right) / (years.length - 1) : 0;
-  const xForYear = year => margin.left + years.indexOf(year) * xStep;
-  const yForValue = value => height - margin.bottom - ((value - yMin) / (yMax - yMin || 1)) * (height - margin.top - margin.bottom);
-
-  chartSvg.innerHTML += `<rect x="0" y="0" width="${width}" height="${height}" fill="#f8fbff" rx="20" />`;
-
-  [0, 20, 40, 60, 80, 100].filter(value => value <= yMax).forEach(value => {
-    const y = yForValue(value);
-    chartSvg.innerHTML += `<line x1="${margin.left}" y1="${y}" x2="${width - margin.right}" y2="${y}" stroke="#e2e8f0" stroke-width="1" />`;
-    chartSvg.innerHTML += `<text x="${margin.left - 12}" y="${y + 4}" text-anchor="end" font-size="12" fill="#475569">${value}%</text>`;
+  if (!rows.length) { chartSvg.innerHTML = '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" fill="#475569">No data available for this selection.</text>'; return; }
+  const years = [...new Set(rows.map(row => row.year))].sort((a, b) => a - b);
+  const x = year => margin.left + (years.indexOf(year) * (width - margin.left - margin.right) / Math.max(1, years.length - 1));
+  const y = rate => height - margin.bottom - rate / 100 * (height - margin.top - margin.bottom);
+  let markup = '<rect width="920" height="420" rx="18" fill="#f8fafc"/>';
+  [0, 20, 40, 60, 80, 100].forEach(rate => {
+    markup += `<line x1="${margin.left}" y1="${y(rate)}" x2="${width - margin.right}" y2="${y(rate)}" stroke="#e2e8f0"/>`;
+    markup += `<text x="${margin.left - 10}" y="${y(rate) + 4}" text-anchor="end" font-size="12" fill="#64748b">${rate}%</text>`;
   });
-
-  years.forEach(year => {
-    const x = xForYear(year);
-    chartSvg.innerHTML += `<line x1="${x}" y1="${margin.top}" x2="${x}" y2="${height - margin.bottom}" stroke="#e9eef6" stroke-width="1" />`;
-    chartSvg.innerHTML += `<text x="${x}" y="${height - margin.bottom + 28}" text-anchor="middle" font-size="12" fill="#475569">${year}</text>`;
+  years.forEach(year => markup += `<text x="${x(year)}" y="${height - 18}" text-anchor="middle" font-size="12" fill="#64748b">${year}</text>`);
+  Object.entries(groupBy(rows, 'borough')).forEach(([borough, series]) => {
+    const sorted = series.sort((a, b) => a.year - b.year);
+    const points = sorted.map(point => `${x(point.year)},${y(point.graduationRate)}`).join(' ');
+    const color = boroughColors[borough];
+    markup += `<polyline points="${points}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    sorted.forEach(point => markup += `<circle cx="${x(point.year)}" cy="${y(point.graduationRate)}" r="4.5" fill="${color}" stroke="#fff" stroke-width="2"><title>${borough}, ${point.year}: ${point.graduationRate.toFixed(1)}%</title></circle>`);
   });
-
-  Object.keys(series).forEach((borough, index) => {
-    const sorted = series[borough].sort((a, b) => a.year - b.year);
-    const opacity = boroughSelect.value === 'all' ? 0.85 : borough === boroughSelect.value ? 1 : 0.35;
-    const stroke = boroughSelect.value === borough ? '#1d4ed8' : '#2563eb';
-
-    const path = sorted.map(point => `${xForYear(point.year)},${yForValue(point.graduationRate)}`).join(' ');
-    chartSvg.innerHTML += `<polyline fill="none" stroke="${stroke}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${path}" opacity="${opacity}" />`;
-    sorted.forEach(point => {
-      chartSvg.innerHTML += `<circle cx="${xForYear(point.year)}" cy="${yForValue(point.graduationRate)}" r="5" fill="${stroke}" stroke="#ffffff" stroke-width="2" opacity="${opacity}" />`;
-    });
-  });
-
-  const { year } = getFilters();
-  if (year !== 'all') {
-    const highlighted = filtered.filter(item => String(item.year) === year);
-    highlighted.forEach(point => {
-      const x = xForYear(point.year);
-      const y = yForValue(point.graduationRate);
-      chartSvg.innerHTML += `<circle cx="${x}" cy="${y}" r="8" fill="#f97316" stroke="#ffffff" stroke-width="3" />`;
-      chartSvg.innerHTML += `<text x="${x}" y="${y - 14}" text-anchor="middle" font-size="12" fill="#0f172a">${point.graduationRate.toFixed(1)}%</text>`;
-    });
-  }
-
-  chartSvg.innerHTML += `<text x="${margin.left}" y="${margin.top - 8}" font-size="14" font-weight="700" fill="#0f172a">Graduation rate by borough</text>`;
+  markup += '<text x="58" y="22" font-size="14" font-weight="700" fill="#0f172a">Four-year June graduation rate</text>';
+  chartSvg.innerHTML = markup;
 }
 
-function groupBy(array, key) {
-  return array.reduce((acc, item) => {
-    if (!acc[item[key]]) acc[item[key]] = [];
-    acc[item[key]].push(item);
-    return acc;
-  }, {});
-}
-
-function countWords(text) {
-  return text
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .length;
-}
-
-function setFeedbackMessage(message, type = 'success') {
-  feedbackMessage.textContent = message;
-  feedbackMessage.classList.toggle('error', type === 'error');
-  feedbackMessage.classList.toggle('success', type === 'success');
-}
-
-function updateFeedbackWordCount() {
-  const count = countWords(feedbackComments.value);
-  feedbackWordCount.textContent = count;
-  if (count > 300) {
-    setFeedbackMessage('Your comment is too long. Please keep it under 300 words.', 'error');
-  } else if (feedbackMessage.classList.contains('error')) {
-    setFeedbackMessage('', 'success');
-  }
+function drawSchoolChart(rows) {
+  const { borough, year } = filters();
+  schoolCount.textContent = rows.length.toLocaleString();
+  const location = borough === 'all' ? 'the five boroughs' : borough;
+  schoolChartDescription.textContent = `${rows.length.toLocaleString()} schools in ${location}${year === 'all' ? ', across all available cohort years.' : ` for the ${year} cohort.`}`;
+  if (!rows.length) { schoolChart.innerHTML = '<p class="empty-state">No school records match this selection.</p>'; return; }
+  const sorted = [...rows].sort((a, b) => b.graduationRate - a.graduationRate || a.school.localeCompare(b.school));
+  schoolChart.innerHTML = sorted.map(row => `<article class="school-row" tabindex="0" role="listitem" style="--borough-color:${boroughColors[row.borough]}">
+    <div class="school-label"><strong>${escapeHtml(row.school)}</strong><span>${escapeHtml(row.borough)} · ${row.dbn} · cohort ${row.cohortSize ?? '—'}</span></div>
+    <div class="rate-track" aria-label="${escapeHtml(row.school)} graduation rate ${row.graduationRate}%"><span style="width:${row.graduationRate}%"></span></div>
+    <strong class="rate-value">${row.graduationRate.toFixed(1)}%</strong>
+  </article>`).join('');
 }
 
 function refreshView() {
-  const filtered = filterData();
-  insightCopy.textContent = summarizeInsight(filtered);
-  const chartData = getChartData();
-  drawChart(chartData);
+  const boroughRows = filterRows(boroughData);
+  insightCopy.textContent = summarizeInsight(boroughRows);
+  drawTrend(filterRows(boroughData.filter(row => cohortSelect.value === 'all' || row.cohort === cohortSelect.value)));
+  drawSchoolChart(filterRows(schoolData, false));
 }
 
+function countWords(text) { return text.trim().split(/\s+/).filter(Boolean).length; }
+function setFeedbackMessage(message, type = 'success') { feedbackMessage.textContent = message; feedbackMessage.className = `feedback-message ${type}`; }
 function initFeedbackForm() {
-  if (!feedbackForm) return;
-
-  updateFeedbackWordCount();
-
-  feedbackComments.addEventListener('input', updateFeedbackWordCount);
-
+  feedbackComments.addEventListener('input', () => { feedbackWordCount.textContent = countWords(feedbackComments.value); });
   feedbackForm.addEventListener('submit', event => {
     event.preventDefault();
-    const usefulRating = document.querySelector('input[name="useful-rating"]:checked');
-    const experienceRating = document.querySelector('input[name="experience-rating"]:checked');
-    const comment = feedbackComments.value;
-    const wordCount = countWords(comment);
-
-    if (!usefulRating || !experienceRating) {
-      setFeedbackMessage('Please answer both satisfaction questions before submitting.', 'error');
-      return;
-    }
-
-    if (wordCount > 300) {
-      setFeedbackMessage('Please shorten your comment to 300 words or fewer.', 'error');
-      return;
-    }
-
-    setFeedbackMessage('Thank you. Your feedback has been received.', 'success');
-    feedbackForm.reset();
-    updateFeedbackWordCount();
-    console.log('SchoolLens feedback submitted', {
-      usefulRating: usefulRating.value,
-      experienceRating: experienceRating.value,
-      comment: comment.trim(),
-      words: wordCount,
-    });
+    const useful = document.querySelector('input[name="useful-rating"]:checked');
+    const experience = document.querySelector('input[name="experience-rating"]:checked');
+    if (!useful || !experience) return setFeedbackMessage('Please answer both satisfaction questions before submitting.', 'error');
+    if (countWords(feedbackComments.value) > 300) return setFeedbackMessage('Please shorten your comment to 300 words or fewer.', 'error');
+    setFeedbackMessage('Thank you. Your feedback has been received.'); feedbackForm.reset(); feedbackWordCount.textContent = '0';
   });
 }
 
-function initApp() {
-  fetch(dataUrl)
-    .then(response => response.json())
-    .then(data => {
-      allData = data.entries;
-      const boroughs = Array.from(new Set(allData.map(item => item.borough))).sort();
-      const years = Array.from(new Set(allData.map(item => item.year))).sort();
-      const cohorts = Array.from(new Set(allData.map(item => item.cohort))).sort();
-
-      buildOptions(boroughs, boroughSelect, 'Borough');
-      buildOptions(years, yearSelect, 'Years');
-      buildOptions(cohorts, cohortSelect, 'Cohort Types');
-
-      boroughSelect.addEventListener('change', refreshView);
-      yearSelect.addEventListener('change', refreshView);
-      cohortSelect.addEventListener('change', refreshView);
-      refreshView();
-      initFeedbackForm();
-    })
-    .catch(error => {
-      chartSvg.innerHTML = `<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" fill="#ef4444">Unable to load data.</text>`;
-      insightCopy.textContent = 'Unable to load insights at this time.';
-      console.error(error);
-    });
-}
-
-initApp();
+Promise.all([fetch(boroughDataUrl).then(response => response.json()), fetch(schoolDataUrl).then(response => response.json())])
+  .then(([boroughs, schools]) => {
+    boroughData = boroughs.entries; schoolData = schools.entries;
+    buildOptions([...new Set(boroughData.map(row => row.borough))].sort(), boroughSelect, 'Boroughs');
+    buildOptions([...new Set(schoolData.map(row => row.year))].sort((a, b) => a - b), yearSelect, 'Cohort Years');
+    buildOptions([...new Set(boroughData.map(row => row.cohort))].sort(), cohortSelect, 'Cohort Types');
+    [boroughSelect, yearSelect, cohortSelect].forEach(select => select.addEventListener('change', refreshView));
+    refreshView(); initFeedbackForm();
+  })
+  .catch(error => { console.error(error); insightCopy.textContent = 'Unable to load graduation data at this time.'; schoolChart.innerHTML = '<p class="empty-state">Unable to load school-level data.</p>'; });

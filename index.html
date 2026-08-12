@@ -9,10 +9,17 @@
 <body>
   <main class="page-shell">
     <header class="page-header">
-      <div>
-        <p class="tagline">SchoolLens</p>
-        <h1>Explore NYC graduation data</h1>
-        <p class="subtitle">Explore NYC graduation data to identify potential performance gaps.</p>
+      <div class="header-copy">
+        <p class="tagline">SchoolLens · NYC Public Schools</p>
+        <h1>Explore graduation outcomes across every borough.</h1>
+        <p class="subtitle">Compare every public high school in Manhattan, the Bronx, Brooklyn, Queens, and Staten Island. Each borough has its own color.</p>
+      </div>
+      <div class="borough-key" aria-label="Borough color key">
+        <span><i class="key-dot manhattan"></i>Manhattan</span>
+        <span><i class="key-dot bronx"></i>Bronx</span>
+        <span><i class="key-dot brooklyn"></i>Brooklyn</span>
+        <span><i class="key-dot queens"></i>Queens</span>
+        <span><i class="key-dot staten-island"></i>Staten Island</span>
       </div>
     </header>
 
@@ -33,17 +40,30 @@
 
     <section class="chart-section">
       <div class="section-heading">
-        <h2>Graduation-rate chart</h2>
-        <p>Visualizing how graduation rates change across boroughs and cohort years.</p>
+        <h2>Borough graduation trends</h2>
+        <p>Track the four-year June graduation rate over time. Lines retain the borough color key above.</p>
       </div>
       <div class="chart-card">
         <svg id="trend-chart" viewBox="0 0 920 420" aria-label="Graduation rate trend chart"></svg>
       </div>
     </section>
 
+    <section class="school-section">
+      <div class="section-heading school-heading">
+        <div>
+          <p class="eyebrow">School comparison</p>
+          <h2>Every school, one view</h2>
+          <p id="school-chart-description">Loading school-level graduation data.</p>
+        </div>
+        <div class="metric-card"><strong id="school-count">—</strong><span>schools shown</span></div>
+      </div>
+      <div id="school-chart" class="school-chart" role="list" aria-live="polite"></div>
+      <p class="chart-note">Each bar represents one public school. Schools are sorted by graduation rate; hover or focus a bar for details.</p>
+    </section>
+
     <section class="insights-section">
       <h2>What the data suggests</h2>
-      <p id="insight-copy">Loading data to surface the strongest evidence-based finding.</p>
+        <p id="insight-copy">Loading data to surface the strongest evidence-based finding.</p>
     </section>
 
     <section class="feedback-section">
