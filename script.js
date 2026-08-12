@@ -8,16 +8,20 @@ const chartSvg = document.getElementById('trend-chart');
 const schoolChart = document.getElementById('school-chart');
 const schoolCount = document.getElementById('school-count');
 const schoolChartDescription = document.getElementById('school-chart-description');
+const mapElement = document.getElementById('borough-map');
 const feedbackForm = document.getElementById('feedback-form');
 const feedbackComments = document.getElementById('feedback-comments');
 const feedbackWordCount = document.getElementById('feedback-word-count');
 const feedbackMessage = document.getElementById('feedback-message');
 
 const boroughColors = {
-  Manhattan: '#2563eb', Bronx: '#e11d48', Brooklyn: '#7c3aed', Queens: '#059669', 'Staten Island': '#d97706',
+  Manhattan: '#16a34a', Bronx: '#e11d48', Brooklyn: '#7c3aed', Queens: '#d97706', 'Staten Island': '#2563eb',
 };
 let boroughData = [];
 let schoolData = [];
+let boroughMap;
+let boroughMapLayer;
+const boroughGeoJsonUrl = 'https://data.cityofnewyork.us/api/v3/views/gthc-hcne/query.geojson?$limit=10';
 
 function buildOptions(items, select, label) {
   select.innerHTML = `<option value="all">All ${label}</option>`;
@@ -97,11 +101,43 @@ function drawSchoolChart(rows) {
   </article>`).join('');
 }
 
+function updateMap(rows) {
+  if (!boroughMapLayer) return;
+  const rates = Object.fromEntries(rows.map(row => [row.borough, row.graduationRate]));
+  const activeBorough = boroughSelect.value;
+  boroughMapLayer.eachLayer(layer => {
+    const borough = layer.feature.properties.boroname;
+    const rate = rates[borough];
+    const isActive = activeBorough === 'all' || borough === activeBorough;
+    layer.setStyle({ fillColor: boroughColors[borough] || '#94a3b8', fillOpacity: rate !== undefined && isActive ? .72 : .14, color: isActive ? '#ffffff' : '#cbd5e1', weight: isActive ? 2 : 1 });
+    layer.unbindTooltip();
+    layer.bindTooltip(`<strong>${borough}</strong><br>${rate === undefined ? 'No matching data' : `${rate.toFixed(1)}% graduation rate`}`, { sticky: true });
+  });
+}
+
+function initMap() {
+  if (!window.L || !mapElement) return;
+  boroughMap = L.map(mapElement, { scrollWheelZoom: false, zoomControl: true }).setView([40.70, -73.94], 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(boroughMap);
+  fetch(boroughGeoJsonUrl)
+    .then(response => response.json())
+    .then(geoJson => {
+      boroughMapLayer = L.geoJSON(geoJson, {
+        style: { color: '#ffffff', weight: 2, fillOpacity: .7 },
+        onEachFeature: (feature, layer) => layer.on({ click: () => { boroughSelect.value = feature.properties.boroname; refreshView(); } }),
+      }).addTo(boroughMap);
+      boroughMap.fitBounds(boroughMapLayer.getBounds(), { padding: [18, 18] });
+      updateMap(filterRows(boroughData));
+    })
+    .catch(() => { mapElement.innerHTML = '<p class="empty-state">The map could not load. Please check your internet connection and try again.</p>'; });
+}
+
 function refreshView() {
   const boroughRows = filterRows(boroughData);
   insightCopy.textContent = summarizeInsight(boroughRows);
   drawTrend(filterRows(boroughData.filter(row => cohortSelect.value === 'all' || row.cohort === cohortSelect.value)));
   drawSchoolChart(filterRows(schoolData, false));
+  updateMap(boroughRows);
 }
 
 function countWords(text) { return text.trim().split(/\s+/).filter(Boolean).length; }
@@ -126,5 +162,6 @@ Promise.all([fetch(boroughDataUrl).then(response => response.json()), fetch(scho
     buildOptions([...new Set(boroughData.map(row => row.cohort))].sort(), cohortSelect, 'Cohort Types');
     [boroughSelect, yearSelect, cohortSelect].forEach(select => select.addEventListener('change', refreshView));
     refreshView(); initFeedbackForm();
+    initMap();
   })
   .catch(error => { console.error(error); insightCopy.textContent = 'Unable to load graduation data at this time.'; schoolChart.innerHTML = '<p class="empty-state">Unable to load school-level data.</p>'; });
